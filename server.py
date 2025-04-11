@@ -13,6 +13,8 @@ DISCONNECT_MESSAGE = "!DISCONNECT"
 CONNECT_MESSAGE = "!CONNECT"
 START_DIFFIE_HELLMAN = "!START_DIFFIE_HELLMAN"
 END_DIFFIE_HELLMAN = "!END_DIFFIE_HELLMAN"
+global IM_ACTIVE
+IM_ACTIVE = False
 
 GENERATOR = 3
 PRIME = 11
@@ -70,6 +72,8 @@ def handle_client(conn, addr):
         #     connected = False
         
         message_dict = dict()
+
+        IM_ACTIVE = False
         
         try:
             message_dict = json.loads(message)
@@ -145,9 +149,12 @@ async def send_message(message):
     await asyncio.to_thread(send, message)
 
 async def keep_inputting():
+    global IM_ACTIVE
     while True:
         sendMessage = await async_input("")
-        await start_diffie_hellman()
+        if not IM_ACTIVE:
+            IM_ACTIVE = True
+            await start_diffie_hellman()
 
         message_info = dict()
         message_info["type"] = NORMAL_MESSAGE
